@@ -14,12 +14,30 @@ CONTAINER_NET_INTERFACE=eth0
 TMPFS=$(mktemp -d)
 mkdir -p $MOUNTED_HOST_DIR
 
-cp $(find $CADIR -type f -name "client.key") $TMPFS
-cp $(find $CADIR -type f -name "client.crt") $TMPFS
-cp $(find $CADIR -type f -name "ca.crt") $TMPFS
-cp $(find $CADIR -type f -name "ta.key") $TMPFS
+CONTENT_CA=$(find $CADIR -type f -name "ca.crt" -exec cat {} \;)
+CONTENT_CLIENT_CERT=$(find $CADIR -type f -name "client.crt" -exec cat {} \;)
+CONTENT_CLIENT_KEY=$(find $CADIR -type f -name "client.key" -exec cat {} \;)
+CONTENT_TA=$(find $CADIR -type f -name "ta.key" -exec cat {} \;)
+
 sed -i -e "s/<0w0_SERVER_HOST>/$HOST_IP/g" $OHOME/client.example
 cp $OHOME/client.example $TMPFS/client.ovpn
+
+cat << EOE >> $TMPFS/client.ovpn
+
+<ca>
+$CONTENT_CA
+</ca>
+<cert>
+$CONTENT_CLIENT_CERT
+</cert>
+<key>
+$CONTENT_CLIENT_KEY
+</key>
+<tls-auth>
+$CONTENT_TA
+</tls-auth>
+
+EOE
 
 rm -f $MOUNTED_HOST_DIR/conn.gz
 tar cvfz $MOUNTED_HOST_DIR/conn.gz -C $TMPFS .

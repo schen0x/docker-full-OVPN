@@ -42,12 +42,12 @@ iptables -C INPUT -p tcp --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j AC
     iptables -A OUTPUT -p tcp --sport 22 -m conntrack --ctstate ESTABLISHED -j ACCEPT
 }
 
-# Allowing Incoming HTTP && HTTPS
-iptables -C INPUT -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT 2>/dev/null || {
-    iptables -A INPUT -p tcp -m multiport --dports 80,443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+# Allowing Incoming HTTP && HTTPS && 1194
+iptables -C INPUT -p tcp -m multiport --dports 80,443,1194 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT 2>/dev/null || {
+    iptables -A INPUT -p tcp -m multiport --dports 80,443,1194 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
 }
-iptables -C OUTPUT -p tcp -m multiport --dports 80,443 -m conntrack --ctstate ESTABLISHED -j ACCEPT 2>/dev/null || {
-    iptables -A OUTPUT -p tcp -m multiport --dports 80,443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+iptables -C OUTPUT -p tcp -m multiport --dports 80,443,1194 -m conntrack --ctstate ESTABLISHED -j ACCEPT 2>/dev/null || {
+    iptables -A OUTPUT -p tcp -m multiport --dports 80,443,1194 -m conntrack --ctstate ESTABLISHED -j ACCEPT
 }
 
 # Allowing OVPN connection
