@@ -14,7 +14,7 @@ RUN dd if=/dev/urandom of=pki/.rnd bs=256 count=1
 RUN echo set_var EASYRSA_BATCH "1" | tee -a vars
 RUN ./easyrsa build-ca nopass
 RUN ./easyrsa build-server-full server nopass
-RUN ./easyrsa build-client-full client nopass
+RUN for i in $(seq 0 4); do ./easyrsa build-client-full "client${i}" nopass; done
 RUN ./easyrsa gen-dh
 RUN openvpn --genkey --secret $CADIR/ta.key
 
