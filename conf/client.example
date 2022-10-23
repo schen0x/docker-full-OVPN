@@ -112,14 +112,13 @@ remote-cert-tls server
 # use inline tls-auth
 key-direction 1
 
-
 # Select a cryptographic cipher.
 # If the cipher option is used on the server
 # then you must also specify it here.
 # Note that v2.4 client/server will automatically
 # negotiate AES-256-GCM in TLS mode.
 # See also the data-ciphers option in the manpage
-cipher AES-256-CBC
+cipher AES-256-GCM
 
 # Enable compression on the VPN link.
 # Don't enable this unless it is also
