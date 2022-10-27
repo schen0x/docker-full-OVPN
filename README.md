@@ -19,12 +19,16 @@ An OVPN server that is:
 
 ```sh
 # as root
+# [Optional] install dnsmasq before altering internet config.
+apt install dnsmasq
+
 # Stop NetworkManager from handling our DNS. We can do it by ourself.
 systemctl disable systemd-resolved.service
 systemctl stop systemd-resolved.service
 
 cat << 'EOF' > /etc/NetworkManager/conf.d/my-dns.conf
 # ref: man networkmanager.conf
+[main]
 # do not update /etc/resolv.conf
 rc-manager=unmanaged
 dns=none
@@ -33,7 +37,7 @@ EOF
 
 # [Optional] Config "dnsmasq", a local DNS cache server for better performance and DNSSEC etc.
 # apt-file search dnsmasq.conf.example; locate dnsmasq.conf.example;
-apt install dnsmasq
+# apt install dnsmasq
 # cp /usr/share/doc/dnsmasq-base/examples/dnsmasq.conf.example /etc/dnsmasq.conf
 
 cat << 'EOF' > /etc/dnsmasq.conf
@@ -44,8 +48,8 @@ dnssec
 # Do not read /etc/resolv.conf
 no-resolv
 # Add name servers
-server 8.8.8.8
-server 1.1.1.1
+server=8.8.8.8
+server=1.1.1.1
 EOF
 systemctl enable dnsmasq
 
@@ -54,10 +58,16 @@ systemctl enable dnsmasq
 # Otherwise use some public dns server.
 cat << 'EOF' > /etc/resolv.conf
 nameserver 127.0.0.1
+# nameserver 8.8.8.8
+# nameserver 1.1.1.1
 EOF
 
 # reboot the system now
 shutdown -r 0
+
+# check service status after reboot
+systemctl status dnsmasq
+systemctl status NetworkManager
 
 # to test the latency (should be 0ms on local cache hit)
 dig archlinux.com @127.0.0.1
