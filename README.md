@@ -20,7 +20,8 @@ An OVPN server that is:
 ```sh
 # as root
 # [Optional] install dnsmasq before altering internet config.
-apt install dnsmasq
+# apt install dnsmasq
+apt install dnss
 
 # Stop NetworkManager from handling our DNS. We can do it by ourself.
 systemctl disable systemd-resolved.service
@@ -35,23 +36,46 @@ dns=none
 systemd-resolved=false
 EOF
 
-# [Optional] Config "dnsmasq", a local DNS cache server for better performance and DNSSEC etc.
-# apt-file search dnsmasq.conf.example; locate dnsmasq.conf.example;
-# apt install dnsmasq
-# cp /usr/share/doc/dnsmasq-base/examples/dnsmasq.conf.example /etc/dnsmasq.conf
+# # [Optional] Config "dnsmasq", a local DNS cache server for better performance and DNSSEC etc.
+# # apt-file search dnsmasq.conf.example; locate dnsmasq.conf.example;
+# # apt install dnsmasq
+# # cp /usr/share/doc/dnsmasq-base/examples/dnsmasq.conf.example /etc/dnsmasq.conf
+#
+# cat << 'EOF' > /etc/dnsmasq.conf
+# port=53
+# listen-address=127.0.0.1
+# bind-interfaces
+# dnssec
+# # Do not read /etc/resolv.conf
+# no-resolv
+# # Add name servers
+# server=8.8.8.8
+# server=1.1.1.1
+# EOF
+# systemctl enable dnsmasq
 
-cat << 'EOF' > /etc/dnsmasq.conf
-port=53
-listen-address=127.0.0.1
-bind-interfaces
-dnssec
-# Do not read /etc/resolv.conf
-no-resolv
-# Add name servers
-server=8.8.8.8
-server=1.1.1.1
+# [Optional] Config "dnss", a local DNS over HTTPs resolver
+# apt show dnss
+# apt install dnss
+# systemctl status dnss
+## Loaded: loaded (/lib/systemd/system/dnss.service; enabled; vendor preset: enabled)
+# systemctl status dnss | grep -i "Loaded: loaded" | cut -d '(' -f2 | cut -d ';' -f1
+cat $(systemctl show -P FragmentPath dnss);
+TMP_DNSS_ENV_F=$(cat $(systemctl show -P FragmentPath dnss) | grep "EnvironmentFile" | cut -d '-' -f2);
+echo && echo "========[Default Flags]========"
+cat "${TMP_DNSS_ENV_F}";
+
+# /etc/default/dnss
+# sudo vim "${TMP_DNSS_ENV_F}";
+cat << 'EOF' > "${TMP_DNSS_ENV_F}"
+MODE_FLAGS='--enable_dns_to_https -https_upstream="https://1.1.1.1/dns-query"'
+#MONITORING_FLAG="--monitoring_listen_addr=127.0.0.1:9981"
+MONITORING_FLAG=""
 EOF
-systemctl enable dnsmasq
+
+systemctl enable dnss
+systemctl restart dnss
+systemctl -l status dnss
 
 # rewrite /etc/resolv.conf
 # Set 127.0.0.1 as nameserver if dnsmasq has been configured.
