@@ -19,6 +19,11 @@ An OVPN server that is:
 
 ```sh
 # as root
+if [ "$EUID" -ne 0 ]
+  then echo "Needs to be run as root"
+  exit
+fi
+
 # [Optional] install dnsmasq before altering internet config.
 # apt install dnsmasq
 apt install dnss
@@ -87,7 +92,7 @@ nameserver 127.0.0.1
 EOF
 
 # reboot the system now
-shutdown -r 0
+# shutdown -r 0
 
 # check service status after reboot
 systemctl status dnsmasq
