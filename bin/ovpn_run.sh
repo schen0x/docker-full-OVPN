@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# server global variable
-HOST_IP=$HOST_IP
+# extern
+SERVER_WAN_DNS_NAME=$SERVER_WAN_DNS_NAME
 
 # defined in `server.conf`
 OVPN_SUBNET=10.8.0.0/24
@@ -16,7 +16,7 @@ mkdir -p $MOUNTED_HOST_DIR
 
 CONTENT_CA=$(find $CADIR -type f -name "ca.crt" -exec cat {} \;)
 CONTENT_TA=$(find $CADIR -type f -name "ta.key" -exec cat {} \;)
-sed -i -e "s/<0w0_SERVER_HOST>/$HOST_IP/g" $OHOME/client.example
+sed -i -e "s/<0w0_SERVER_HOST>/$SERVER_WAN_DNS_NAME/g" $OHOME/client.example
 
 for CLIENT_KEY_FILE in $(find $CADIR -type f -name "client*.key")
 do

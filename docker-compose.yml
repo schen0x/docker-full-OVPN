@@ -16,5 +16,6 @@ services:
       - /out:/out
     environment:
       - HOST_IP=${HOST_IP}
+      - SERVER_WAN_DNS_NAME=${SERVER_WAN_DNS_NAME}
     restart: always
     command: ["ovpn_run.sh"]
