@@ -31,15 +31,19 @@ apt install dnss
 # Stop NetworkManager from handling our DNS. We can do it by ourself.
 systemctl disable systemd-resolved.service
 systemctl stop systemd-resolved.service
+# 24.04 LTS
+apt purge systemd-resolvd
 
-cat << 'EOF' > /etc/NetworkManager/conf.d/my-dns.conf
-# ref: man networkmanager.conf
-[main]
-# do not update /etc/resolv.conf
-rc-manager=unmanaged
-dns=none
-systemd-resolved=false
-EOF
+# 22.04 LTS
+# cat << 'EOF' > /etc/NetworkManager/conf.d/my-dns.conf
+# # ref: man networkmanager.conf
+# [main]
+# # do not update /etc/resolv.conf
+# rc-manager=unmanaged
+# dns=none
+# systemd-resolved=false
+# EOF
+
 
 # # [Optional] Config "dnsmasq", a local DNS cache server for better performance and DNSSEC etc.
 # # apt-file search dnsmasq.conf.example; locate dnsmasq.conf.example;
