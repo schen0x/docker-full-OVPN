@@ -51,7 +51,7 @@ systemctl enable $(basename $SYSTEMD_UNIT_FILE)
 
 
 # PKGS
-PKG_LISTS="docker docker-compose git vim tmux iptables iproute2 p7zip-full"
+PKG_LISTS="docker docker-compose git vim tmux iptables iproute2 p7zip-full dnsutils"
 DEBIAN_FRONTEND=noninteractive; apt update -y && apt upgrade -y && apt-get install -y $PKG_LISTS
 
 
@@ -90,8 +90,11 @@ cat << 'EOF' >> ~/.bashrc
 # gcp
 export HOST_NET_INTERFACE=ens4
 # VOLATILE
-export SERVER_WAN_DNS_NAME=MODIFYME
-
+PUB_IP_ASSUME=$(dig +short TXT CH whoami.cloudflare @1.0.0.1 2> /dev/null);
+[[ ${#PUB_IP_ASSUME} -lt 8 ]] && {
+PUB_IP_ASSUME=$(dig +short myip.opendns.com @resolver1.opendns.com 2> /dev/null);
+}
+export SERVER_WAN_DNS_NAME=${PUB_IP_ASSUME};
 HOST_WAN_NIC_IP=$(ip addr | grep $HOST_NET_INTERFACE | grep inet | awk -F " brd" '{print $1}' | awk -F "inet " '{print $2}' | cut -d '/' -f 1)
 export HOST_IP=$HOST_WAN_NIC_IP
 
