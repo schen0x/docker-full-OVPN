@@ -1,7 +1,26 @@
 #!/bin/bash
+# This script runs in the container, as entrypoint
 
-# extern
+# ===== VOLATILE START =====
+# vultr
+# export HOST_NET_INTERFACE=enp1s0
+# digital ocean
+export HOST_NET_INTERFACE=eth0
+# gcp
+# export HOST_NET_INTERFACE=ens4
+
+# The external IP (the "server" field in client.ovpn)
+PUB_IP_ASSUME=$(dig +short TXT CH whoami.cloudflare @1.0.0.1 2> /dev/null);
+[[ ${#PUB_IP_ASSUME} -lt 8 ]] && {
+PUB_IP_ASSUME=$(dig +short myip.opendns.com @resolver1.opendns.com 2> /dev/null);
+}
+export SERVER_WAN_DNS_NAME=${PUB_IP_ASSUME};
+
 SERVER_WAN_DNS_NAME=$SERVER_WAN_DNS_NAME
+
+# (depends on the base image or docker version?)
+CONTAINER_NET_INTERFACE=eth0
+# ===== VOLATILE END =====
 
 # defined in `server.conf`
 OVPN_SUBNET=10.8.0.0/24
@@ -9,7 +28,6 @@ OVPN_SUBNET=10.8.0.0/24
 CADIR=/etc/openvpn-ca
 OHOME=/etc/openvpn
 MOUNTED_HOST_DIR=/out
-CONTAINER_NET_INTERFACE=eth0
 
 TMPFS=$(mktemp -d)
 mkdir -p $MOUNTED_HOST_DIR

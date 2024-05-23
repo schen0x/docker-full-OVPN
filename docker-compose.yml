@@ -14,8 +14,6 @@ services:
       - "1194:1194/udp"
     volumes:
       - /out:/out
-    environment:
-      - HOST_IP=${HOST_IP}
-      - SERVER_WAN_DNS_NAME=${SERVER_WAN_DNS_NAME}
+    # environment:
     restart: always
     command: ["ovpn_run.sh"]

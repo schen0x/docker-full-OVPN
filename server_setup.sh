@@ -51,7 +51,7 @@ systemctl enable $(basename $SYSTEMD_UNIT_FILE)
 
 
 # PKGS
-PKG_LISTS="docker docker-compose git vim tmux iptables iproute2 p7zip-full dnsutils"
+PKG_LISTS="docker.io docker-compose git vim tmux iptables iproute2 p7zip-full dnsutils"
 DEBIAN_FRONTEND=noninteractive; apt update -y && apt upgrade -y && apt-get install -y $PKG_LISTS
 
 
@@ -82,25 +82,11 @@ mkdir -p /out
 D0=/srv/docker-portable-OVPN
 [[ -d $D0 ]] || git clone https://github.com/schen0x/docker-portable-OVPN $D0
 
-##### VOLATILE START #####
+grep -qi "/srv/docker-portable-OVPN" ~/.bashrc || {
 cat << 'EOF' >> ~/.bashrc
-# VOLATILE
-# vultr
-# export HOST_NET_INTERFACE=enp1s0
-# gcp
-export HOST_NET_INTERFACE=ens4
-# VOLATILE
-PUB_IP_ASSUME=$(dig +short TXT CH whoami.cloudflare @1.0.0.1 2> /dev/null);
-[[ ${#PUB_IP_ASSUME} -lt 8 ]] && {
-PUB_IP_ASSUME=$(dig +short myip.opendns.com @resolver1.opendns.com 2> /dev/null);
-}
-export SERVER_WAN_DNS_NAME=${PUB_IP_ASSUME};
-HOST_WAN_NIC_IP=$(ip addr | grep $HOST_NET_INTERFACE | grep inet | awk -F " brd" '{print $1}' | awk -F "inet " '{print $2}' | cut -d '/' -f 1)
-export HOST_IP=$HOST_WAN_NIC_IP
-
 cd /srv/docker-portable-OVPN
 EOF
-##### VOLATILE END #####
+}
 
 # refresh the ENVs, The variables in the .bashrc goes to the docker_compose.yml
 cd $D0
