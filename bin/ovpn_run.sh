@@ -11,12 +11,11 @@ export HOST_NET_INTERFACE=eth0
 
 # The external IP (the "server" field in client.ovpn)
 PUB_IP_ASSUME=$(dig +short TXT CH whoami.cloudflare @1.0.0.1 2> /dev/null);
-[[ ${#PUB_IP_ASSUME} -lt 8 ]] && {
-PUB_IP_ASSUME=$(dig +short myip.opendns.com @resolver1.opendns.com 2> /dev/null);
+# e.g. PUB_IP_ASSUME="1.2.3.4", on error, fallback to another api
+sleep 2 && [[ ${#PUB_IP_ASSUME} -lt 7 ]] && {
+    PUB_IP_ASSUME=$(dig +short myip.opendns.com @resolver1.opendns.com 2> /dev/null);
 }
-export SERVER_WAN_DNS_NAME=${PUB_IP_ASSUME};
-
-SERVER_WAN_DNS_NAME=$SERVER_WAN_DNS_NAME
+SERVER_WAN_DNS_NAME=${PUB_IP_ASSUME};
 
 # (depends on the base image or docker version?)
 CONTAINER_NET_INTERFACE=eth0
@@ -34,7 +33,7 @@ mkdir -p $MOUNTED_HOST_DIR
 
 CONTENT_CA=$(find $CADIR -type f -name "ca.crt" -exec cat {} \;)
 CONTENT_TA=$(find $CADIR -type f -name "ta.key" -exec cat {} \;)
-sed -i -e "s/<0w0_SERVER_HOST>/$SERVER_WAN_DNS_NAME/g" $OHOME/client.example
+sed -i -e "s/<0w0_SERVER_HOST>/${SERVER_WAN_DNS_NAME}/g" $OHOME/client.example
 
 for CLIENT_KEY_FILE in $(find $CADIR -type f -name "client*.key")
 do
