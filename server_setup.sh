@@ -107,5 +107,6 @@ EOF
 cd $D0
 source ~/.bashrc
 
-docker-compose build && docker-compose up -d
+# dpkg -L docker-compose-plugin
+/usr/libexec/docker/cli-plugins/docker-compose build && /usr/libexec/docker/cli-plugins/docker-compose up -d
 
