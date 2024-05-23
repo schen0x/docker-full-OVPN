@@ -51,9 +51,24 @@ systemctl enable $(basename $SYSTEMD_UNIT_FILE)
 
 
 # PKGS
-PKG_LISTS="docker.io docker-compose git vim tmux iptables iproute2 p7zip-full dnsutils"
+PKG_LISTS="git vim tmux iptables iproute2 p7zip-full dnsutils"
 DEBIAN_FRONTEND=noninteractive; apt update -y && apt upgrade -y && apt-get install -y $PKG_LISTS
 
+# DOCKER
+# Add Docker's official GPG key:
+DEBIAN_FRONTEND=noninteractive; apt -y install ca-certificates curl
+install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  tee /etc/apt/sources.list.d/docker.list > /dev/null
+apt -y update
+# install docker
+DEBIAN_FRONTEND=noninteractive; apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # Allowing IN 22/tcp
 iptables -C INPUT -p tcp --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT 2>/dev/null || {
