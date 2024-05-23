@@ -9,7 +9,7 @@ export HOST_NET_INTERFACE=eth0
 # gcp
 # export HOST_NET_INTERFACE=ens4
 
-# The external IP (the "server" field in client.ovpn)
+# The external IP (the "remote" field in client.ovpn)
 PUB_IP_ASSUME=$(dig +short TXT CH whoami.cloudflare @1.0.0.1 2> /dev/null);
 # e.g. PUB_IP_ASSUME="1.2.3.4", on error, fallback to another api
 sleep 2 && [[ ${#PUB_IP_ASSUME} -lt 7 ]] && {
@@ -61,8 +61,9 @@ $CONTENT_TA
 EOE
 done
 
-rm -f $MOUNTED_HOST_DIR/conn.gz
-tar cvfz $MOUNTED_HOST_DIR/conn.gz -C $TMPFS .
+# Win11 can unarchive *.tar.gz in GUI
+rm -f $MOUNTED_HOST_DIR/conn.tar.gz
+tar cvfz $MOUNTED_HOST_DIR/conn.tar.gz -C $TMPFS .
 
 # Check if rule exist. Error if not exist. Add rule on error
 iptables -t nat -C POSTROUTING -s $OVPN_SUBNET -o $CONTAINER_NET_INTERFACE -j MASQUERADE 2>/dev/null || {
