@@ -68,7 +68,7 @@ echo \
   tee /etc/apt/sources.list.d/docker.list > /dev/null
 apt -y update
 # install docker
-DEBIAN_FRONTEND=noninteractive; apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+DEBIAN_FRONTEND=noninteractive; apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 # Allowing IN 22/tcp
 iptables -C INPUT -p tcp --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT 2>/dev/null || {
